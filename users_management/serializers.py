@@ -28,5 +28,5 @@ class BaseUserLoginSerializer(serializers.Serializer):
     """User serializer for login"""
     
     email = serializers.CharField(max_length=255)
-    password = serializers.CharField(max_length=16)
+    password = serializers.CharField(max_length=255)
         
