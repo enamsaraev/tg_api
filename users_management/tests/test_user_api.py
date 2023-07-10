@@ -7,16 +7,6 @@ from django.urls import reverse
 from django.contrib.auth import login
 
 
-@pytest.fixture
-def api_login(db, api):
-    user = mixer.blend('dbcore.User')
-    user.set_password('secretpass')
-    user.save()
-    api.login(email=user.email, password='secretpass')
-
-    return api, user
-
-
 def test_user_registration_successfull(db, api):
     """Test UserRegistration view - success"""
 
