@@ -29,7 +29,7 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    """Custon user model that supportsusing email instead of username"""
+    """Custon user model that supports using email instead of username"""
 
     email = models.EmailField(max_length=255, unique=True)
     chat_id = models.BigIntegerField(unique=True, null=True, blank=True)
@@ -84,6 +84,7 @@ class ExpenseCategoryProperty(models.Model):
                                       related_name='expense_category_props',
                                       on_delete=models.SET_NULL,
                                       null=True)
+    expense_id = models.IntegerField(null=False, blank=False)
     deleted = models.BooleanField(default=False)
 
     def __str__(self):

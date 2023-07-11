@@ -28,19 +28,19 @@ class BaseExpenseCategorySerializer(serializers.ModelSerializer):
 
 class BaseExpenseCreationSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField()
-    category_name = serializers.CharField(max_length=255)
+    expense_category_name = serializers.CharField(max_length=255)
 
     class Meta:
         model = Expense
-        fields = ('user_id', 'category_name', 'date', 'deleted')
+        fields = ('user_id', 'expense_category_name', 'date', 'deleted')
 
     
     def create(self, validated_data):
         user_id = validated_data.pop('user_id', None)
-        category_name = validated_data.pop('category_name', None)
+        expense_category_name = validated_data.pop('expense_category_name', None)
 
         user = get_object_or_404(User, id=user_id)
-        user_category = get_object_or_404(ExpenseCategory, user=user, name=category_name)
+        user_category = get_object_or_404(ExpenseCategory, user=user, name=expense_category_name)
 
         inst = self.Meta.model(**validated_data)
         inst.user = user
@@ -48,3 +48,27 @@ class BaseExpenseCreationSerializer(serializers.ModelSerializer):
         inst.save()
     
         return inst
+    
+
+class BaseExpenseCategoryPropertySerializer(serializers.ModelSerializer):
+    user_id = serializers.IntegerField()
+    expense_category_name = serializers.CharField()
+    expense_id = serializers.IntegerField()
+
+    class Meta:
+        model = ExpenseCategoryProperty
+        fields = ('user_id', 'expense_category_name', 'name', 'expense', 'description', 'raw_string', 'expense_id')
+
+    def create(self, validated_data):
+        expense_category_name = validated_data.pop('expense_category_name', None)
+        user_id = validated_data.pop('user_id', None)
+        expense_category = ExpenseCategory.objects.get(user__id=user_id,  name=expense_category_name)
+
+        inst = self.Meta.model(**validated_data)
+        inst.category = expense_category
+        inst.save()
+
+        return inst
+    
+
+
