@@ -2,7 +2,8 @@ from django.urls import path
 
 from msg.views import (
     GetUserExpenseCategories, CreateNewUserExpenseCategory, 
-    CreateNewExpense, CreateNewExpenseProps, CreateFullExpense
+    CreateNewExpense, CreateNewExpenseProps, CreateFullExpense,
+    GetAllUserExpenses,
 )
 
 
@@ -12,6 +13,7 @@ urlpatterns = [
     path('create_expense/', CreateNewExpense.as_view(), name='new_expense_creation'),
     path('create_expense_props/', CreateNewExpenseProps.as_view(), name='new_expense_category_property_cration'),
     path('create_full_expense/', CreateFullExpense.as_view(), name='create_full_expense'),
+    path('get_all_expenses/', GetAllUserExpenses.as_view(), name='get_all_user_expenses'),
 ]
 
 
