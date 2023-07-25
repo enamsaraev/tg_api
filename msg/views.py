@@ -2,19 +2,15 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response 
 from rest_framework.exceptions import APIException
+from django.db.models import Count
 
-from dbcore.models import ExpenseCategory
-from msg.serializers import BaseExpenseCategorySerializer, BaseExpenseCreationSerializer, BaseExpenseCategoryPropertySerializer
+from dbcore.models import Expense, ExpenseCategory, ExpenseProperty
+from msg.serializers import (
+    BaseExpenseCategorySerializer, BaseExpenseCreationSerializer, 
+    BaseExpensePropertySerializer, GetExpensesInfoSerializer
+)
 from msg.helpers import ExpenseCreationHelper
 
-
-class GetUserExpenseCategories(APIView):
-    def get(self, request):
-        categories = ExpenseCategory.objects.filter(user__id=request.data['id'])
-        ser = BaseExpenseCategorySerializer(categories, many=True)
-
-        return Response(ser.data)
-    
 
 class CreateNewUserExpenseCategory(APIView):
     def post(self, request):
@@ -39,7 +35,7 @@ class CreateNewExpense(APIView):
 
 class CreateNewExpenseProps(APIView):
     def post(self, request):
-        ser = BaseExpenseCategoryPropertySerializer(data=request.data)
+        ser = BaseExpensePropertySerializer(data=request.data)
         ser.is_valid(raise_exception=True)
         ser.save()
 
@@ -53,3 +49,19 @@ class CreateFullExpense(APIView):
             raise APIException('Invalid data!')
         
         return Response(status=status.HTTP_201_CREATED)
+    
+
+class GetUserExpenseCategories(APIView):
+    def get(self, request):
+        categories = ExpenseCategory.objects.filter(user__id=request.data['id'])
+        ser = BaseExpenseCategorySerializer(categories, many=True)
+
+        return Response(ser.data)
+    
+
+class GetAllUserExpenses(APIView):
+    def get(self, request):
+        all_user_expenses = ExpenseProperty.objects.filter(expense_obj__user__id=request.data['user_id']).select_related('expense_obj').prefetch_related('expense_obj__category')
+        ser = GetExpensesInfoSerializer(all_user_expenses, many=True)
+        
+        return Response(ser.data)

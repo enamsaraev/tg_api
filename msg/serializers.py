@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from django.shortcuts import get_object_or_404
+from drf_writable_nested.serializers import WritableNestedModelSerializer
 
-from dbcore.models import User, Expense, ExpenseCategory, ExpenseCategoryProperty
+from dbcore.models import User, Expense, ExpenseCategory, ExpenseProperty
 
 
 class BaseExpenseCategorySerializer(serializers.ModelSerializer):
@@ -50,25 +51,28 @@ class BaseExpenseCreationSerializer(serializers.ModelSerializer):
         return inst
     
 
-class BaseExpenseCategoryPropertySerializer(serializers.ModelSerializer):
-    user_id = serializers.IntegerField()
-    expense_category_name = serializers.CharField()
+class BaseExpensePropertySerializer(serializers.ModelSerializer):
     expense_id = serializers.IntegerField()
 
     class Meta:
-        model = ExpenseCategoryProperty
-        fields = ('user_id', 'expense_category_name', 'name', 'expense', 'description', 'raw_string', 'expense_id')
+        model = ExpenseProperty
+        fields = ('name', 'expense', 'description', 'raw_string', 'expense_id')
 
     def create(self, validated_data):
-        expense_category_name = validated_data.pop('expense_category_name', None)
-        user_id = validated_data.pop('user_id', None)
-        expense_category = ExpenseCategory.objects.get(user__id=user_id,  name=expense_category_name)
+        expense_id = validated_data.pop('expense_id', None)
+        expense_inst = Expense.objects.get(id=expense_id)
 
         inst = self.Meta.model(**validated_data)
-        inst.category = expense_category
+        inst.expense_obj = expense_inst
         inst.save()
 
         return inst
-    
 
 
+class GetExpensesInfoSerializer(serializers.ModelSerializer):
+    expense_date = serializers.StringRelatedField(source='expense_obj.date')
+    expense_category = serializers.StringRelatedField(source='expense_obj.category.name')
+
+    class Meta:
+        model = ExpenseProperty
+        fields = ('expense_date', 'expense_category', 'name', 'expense', 'description')

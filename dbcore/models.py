@@ -52,9 +52,9 @@ class Expense(models.Model):
                              on_delete=models.SET_NULL,
                              null=True)
     category = models.ForeignKey('ExpenseCategory',
-                                      related_name='expenses',
-                                      on_delete=models.SET_NULL,
-                                      null=True)
+                                related_name='expenses',
+                                on_delete=models.SET_NULL,
+                                null=True)
     date = models.DateField(auto_now_add=True)
     deleted = models.BooleanField(default=False)
 
@@ -75,16 +75,15 @@ class ExpenseCategory(models.Model):
         return self.name
     
 
-class ExpenseCategoryProperty(models.Model):
+class ExpenseProperty(models.Model):
     name = models.CharField(max_length=255, null=False, blank=False)
     expense = models.FloatField()
     description = models.CharField(max_length=255, null=False, blank=False)
     raw_string= models.TextField()
-    category = models.ForeignKey('ExpenseCategory',
-                                      related_name='expense_category_props',
+    expense_obj = models.ForeignKey('Expense',
+                                      related_name='expense_props',
                                       on_delete=models.SET_NULL,
                                       null=True)
-    expense_id = models.IntegerField(null=False, blank=False)
     deleted = models.BooleanField(default=False)
 
     def __str__(self):
